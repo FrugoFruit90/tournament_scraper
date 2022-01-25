@@ -13,7 +13,7 @@ runner = CrawlerRunner()
 
 @defer.inlineCallbacks
 def crawl():
-    # yield runner.crawl(ChessarbiterMainWebsiteSpider)
+    yield runner.crawl(ChessarbiterMainWebsiteSpider)
     yield runner.crawl(TournamentSpider)
     reactor.stop()
 

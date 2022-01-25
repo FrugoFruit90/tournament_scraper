@@ -1,13 +1,20 @@
 TOURNAMENT_DATA_PATH = 'tournament_data.csv'
 FULL_DATA_PATH = 'full_data.csv'
-GARBAGE_FIELD = 'garbage'
-URL_FIELD = 'url'
-CHESSARBITER_TOURNAMENT_FIELDS =\
-    ['start',
-     'status',
-     'name',
-     GARBAGE_FIELD,
-     'city+last_update_date',
-     'country+region',
-     'type']
+
 CHESSARBITER_DATA_JS_FILENAME = 'capro_tournament.js'
+
+URL_FIELD = 'url'
+START_DATE_FIELD = 'start'
+STATUS_FIELD = 'status'
+NAME_FIELD = 'name'
+CITY_LAST_UPDATE_DATE_FIELD = 'city+last_update_date'
+COUNTRY_REGION_DATE_FIELD = 'country+region'
+TYPE_FIELD = 'type'
+CHESSARBITER_TOURNAMENT_FIELDS = [
+    START_DATE_FIELD,
+    STATUS_FIELD,
+    NAME_FIELD,
+    CITY_LAST_UPDATE_DATE_FIELD,
+    COUNTRY_REGION_DATE_FIELD,
+    TYPE_FIELD
+]
