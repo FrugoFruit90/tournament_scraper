@@ -15,7 +15,6 @@ app = Flask(__name__)
 output_data = []
 
 
-# By Deafult Flask will come into this when we run the file
 @app.route('/')
 def index():
     df = pd.read_csv("full_data.csv")
