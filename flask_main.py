@@ -25,5 +25,4 @@ if __name__ == "__main__":
     crawl_runner = CrawlerRunner()
     configure_logging()
     crawl(crawl_runner)
-    reactor.run()
     app.run(debug=True)
