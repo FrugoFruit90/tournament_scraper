@@ -4,3 +4,5 @@
 chess_calendar/chess_calendar/__pycache__/
 chess_calendar/chess_calendar/spiders/__pycache__/
 chess_calendar/__pycache__/
+Procfile
+__pycache__/
