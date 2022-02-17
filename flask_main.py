@@ -18,19 +18,23 @@ root.setLevel(logging.INFO)
 output_data = []
 
 
-@app.route('/')
-def index():
-    df = pd.read_csv("full_data.csv")
-    df = df[df['type'] == 'klasyczne']
-    return df.dropna().sort_values("avg_rating").iloc[-5:]['url'].to_dict()
-
-
-if __name__ == "__main__":
+@app.before_first_request
+def before_first_request():
     if not os.path.exists(FULL_DATA_PATH):
         logging.info("Crawling for tournaments.")
         configure_logging()
         crawl_runner = CrawlerRunner()
         crawl(crawl_runner)
         reactor.run()
-    logging.info("Running the application.")
+
+
+@app.route('/')
+def index():
+    df = pd.read_csv("full_data.csv")
+    df = df[df['type'] == 'klasyczne']
+
+    return df.dropna().sort_values("avg_rating").iloc[-5:]['url'].to_dict()
+
+
+if __name__ == "__main__":
     app.run(debug=True)
