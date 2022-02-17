@@ -4,15 +4,14 @@ import time
 from flask import Flask
 import pandas as pd
 from scrapy.crawler import CrawlerRunner
+from scrapy.utils.log import configure_logging
 from twisted.internet import reactor
 
-from chess_calendar.chess_calendar.main import crawl
+from chess_calendar.chess_calendar.crawler_main import crawl
 
 app = Flask(__name__)
 
 output_data = []
-crawl_runner = CrawlerRunner()
-
 
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
@@ -23,6 +22,8 @@ def index():
 
 
 if __name__ == "__main__":
-    crawl()
+    crawl_runner = CrawlerRunner()
+    configure_logging()
+    crawl(crawl_runner)
     reactor.run()
     app.run(debug=True)

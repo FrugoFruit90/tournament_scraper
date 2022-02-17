@@ -7,7 +7,7 @@ from spiders.tournament_list import ChessarbiterMainWebsiteSpider
 
 
 @defer.inlineCallbacks
-def crawl():
+def crawl(runner):
     yield runner.crawl(ChessarbiterMainWebsiteSpider)
     yield runner.crawl(TournamentSpider)
     reactor.stop()
@@ -15,6 +15,6 @@ def crawl():
 
 if __name__ == "__main__":
     configure_logging()
-    runner = CrawlerRunner()
-    crawl()
+    crawl_runner = CrawlerRunner()
+    crawl(crawl_runner)
     reactor.run()
