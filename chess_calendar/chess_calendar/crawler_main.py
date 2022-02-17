@@ -2,8 +2,8 @@ from twisted.internet import defer
 from scrapy.utils.log import configure_logging
 
 from scrapy.crawler import CrawlerRunner
-from spiders.player_data import TournamentSpider
-from spiders.tournament_list import ChessarbiterMainWebsiteSpider
+from chess_calendar.chess_calendar.spiders.player_data import TournamentSpider
+from chess_calendar.chess_calendar.spiders.tournament_list import ChessarbiterMainWebsiteSpider
 
 
 @defer.inlineCallbacks
