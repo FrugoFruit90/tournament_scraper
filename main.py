@@ -23,6 +23,6 @@ def index():
 
 
 if __name__ == "__main__":
-    # crawl()
-    # reactor.run()
+    crawl()
+    reactor.run()
     app.run(debug=True)
