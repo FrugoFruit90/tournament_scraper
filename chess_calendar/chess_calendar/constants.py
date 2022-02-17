@@ -1,4 +1,4 @@
-TOURNAMENT_DATA_PATH = '../old_data/tournament_data.csv'
+TOURNAMENT_DATA_PATH = 'tournament_data.csv'
 FULL_DATA_PATH = 'full_data.csv'
 
 CHESSARBITER_DATA_JS_FILENAME = 'capro_tournament.js'
