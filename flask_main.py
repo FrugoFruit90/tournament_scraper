@@ -18,7 +18,7 @@ output_data = []
 # By Deafult Flask will come into this when we run the file
 @app.route('/')
 def index():
-    df = pd.read_csv("chess_calendar/full_data.csv")
+    df = pd.read_csv("full_data.csv")
     df = df[df['type'] == 'klasyczne']
     return df.dropna().sort_values("avg_rating").iloc[-5:]['url'].to_dict()
 
