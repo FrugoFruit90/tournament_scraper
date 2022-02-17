@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 
@@ -11,6 +12,8 @@ from chess_calendar.chess_calendar.constants import FULL_DATA_PATH
 from chess_calendar.chess_calendar.crawler_main import crawl
 
 app = Flask(__name__)
+root = logging.getLogger()
+root.setLevel(logging.INFO)
 
 output_data = []
 
@@ -24,8 +27,10 @@ def index():
 
 if __name__ == "__main__":
     if not os.path.exists(FULL_DATA_PATH):
+        logging.info("Crawling for tournaments.")
         configure_logging()
         crawl_runner = CrawlerRunner()
         crawl(crawl_runner)
         reactor.run()
+    logging.info("Running the application.")
     app.run(debug=True)
