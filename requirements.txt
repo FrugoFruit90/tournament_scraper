@@ -47,3 +47,4 @@ w3lib==1.22.0
 Werkzeug==2.0.3
 wrapt==1.13.3
 zope.interface==5.4.0
+sqlalchemy~=1.4.31
