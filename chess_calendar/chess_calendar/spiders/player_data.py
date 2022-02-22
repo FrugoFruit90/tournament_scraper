@@ -52,6 +52,7 @@ class TournamentSpider(scrapy.Spider):
 
         df = pd.DataFrame({'rating': ratings, 'name': names, 'title': titles, 'year_of_birth': birthdays})
         df['id'] = response.meta['index']
+        df['year_of_birth'] = df['year_of_birth'].astype(int)
         self.player_df = pd.concat([self.player_df, df])
 
     def closed(self, _):

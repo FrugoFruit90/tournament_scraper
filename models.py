@@ -37,19 +37,19 @@ def db_drop_and_create_all():
 
 
 class Tournament(db.Model):
-    __tablename__ = 'tournaments'
+    __tablename__ = 'tournament'
     id = Column(Integer, primary_key=True)
-    title = Column(String(80))
-    players = db.relationship("Player", backref="tournament", lazy='dynamic')
-    description = Column(String(80))
+    title = Column(String(200))
+    url = Column(String(80))
+    time_control = Column(String(80))
     status = Column(String(80))
     start_date = Column(db.Date)
     end_date = Column(db.Date)
 
-    def __init__(self, title, url, description, status, start_date, end_date):
+    def __init__(self, title, url, time_control, status, start_date, end_date):
         self.title = title
         self.url = url
-        self.description = description
+        self.time_control = time_control
         self.status = status
         self.start_date = start_date
         self.end_date = end_date
@@ -59,7 +59,7 @@ class Tournament(db.Model):
             'id': self.id,
             'title': self.title,
             'url': self.url,
-            'description': self.description,
+            'time_control': self.time_control,
             'status': self.status,
             'start_date': self.start_date,
             'end_date': self.end_date,
@@ -78,16 +78,17 @@ class Tournament(db.Model):
 
 
 class Player(db.Model):
-    __tablename__ = 'players'
+    __tablename__ = 'player'
     id = Column(Integer, primary_key=True)
-    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'))
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'))
     name = Column(String(80))
     title = Column(String(80))
     rating = Column(Integer())
-    year_of_birth = Column(db.Date)
+    year_of_birth = Column(Integer())
 
-    def __init__(self, tournament, name, title, rating, year_of_birth):
-        self.tournament = tournament
+    def __init__(self, tournament_id, name, title, rating, year_of_birth):
+        self.id = self.id
+        self.tournament_id = tournament_id
         self.name = name
         self.title = title
         self.rating = rating
@@ -96,6 +97,7 @@ class Player(db.Model):
     def details(self):
         return {
             'id': self.id,
+            'tournament_id': self.tournament_id,
             'name': self.name,
             'title': self.title,
             'rating': self.rating,
