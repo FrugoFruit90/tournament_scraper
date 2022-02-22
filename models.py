@@ -40,6 +40,7 @@ class Tournament(db.Model):
     __tablename__ = 'tournaments'
     id = Column(Integer, primary_key=True)
     title = Column(String(80))
+    players = db.relationship("Player", backref="tournament", lazy='dynamic')
     description = Column(String(80))
     status = Column(String(80))
     start_date = Column(db.Date)
@@ -79,27 +80,26 @@ class Tournament(db.Model):
 class Player(db.Model):
     __tablename__ = 'players'
     id = Column(Integer, primary_key=True)
-    first_name = Column(String(80))
-    last_name = Column(String(80))
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournaments.id'))
+    name = Column(String(80))
     title = Column(String(80))
     rating = Column(Integer())
-    date_of_birth = Column(db.Date)
+    year_of_birth = Column(db.Date)
 
-    def __init__(self, first_name, last_name, title, rating, date_of_birth):
-        self.first_name = first_name
-        self.last_name = last_name
+    def __init__(self, tournament, name, title, rating, year_of_birth):
+        self.tournament = tournament
+        self.name = name
         self.title = title
         self.rating = rating
-        self.date_of_birth = date_of_birth
+        self.year_of_birth = year_of_birth
 
     def details(self):
         return {
             'id': self.id,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
+            'name': self.name,
             'title': self.title,
             'rating': self.rating,
-            'date_of_birth': self.date_of_birth,
+            'year_of_birth': self.year_of_birth,
         }
 
     def insert(self):

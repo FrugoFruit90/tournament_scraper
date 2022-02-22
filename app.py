@@ -56,5 +56,4 @@ def before_first_request():
         return df.dropna().sort_values("avg_rating").iloc[-5:]['url'].to_dict()
 
     if __name__ == "__main__":
-        os.environ['FLASK_ENV'] = 'development'
-        app.run(debug=True)
+        app.run()
