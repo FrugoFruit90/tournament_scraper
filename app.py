@@ -1,7 +1,6 @@
 from datetime import date, datetime
 import logging
 import os
-import time
 
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
@@ -19,7 +18,6 @@ root = logging.getLogger()
 root.setLevel(logging.INFO)
 
 app = Flask(__name__)
-app.config['TESTING'] = True
 
 setup_db(app)
 CORS(app)

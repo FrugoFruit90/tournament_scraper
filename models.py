@@ -2,8 +2,6 @@ import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy
 
-from password import PASSWORD
-
 db = SQLAlchemy()
 
 
@@ -17,7 +15,7 @@ def setup_db(app):
         binds a flask application and a SQLAlchemy service
     """
     database_name = 'tournaments'
-    default_database_path = get_database_uri('jim_potato', PASSWORD, 'localhost:5432', database_name)
+    default_database_path = get_database_uri('jim_potato', os.environ.get("PASSWORD"), 'localhost:5432', database_name)
     database_path = os.getenv('DATABASE_URL', default_database_path)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
