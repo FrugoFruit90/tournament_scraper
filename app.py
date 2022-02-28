@@ -40,34 +40,36 @@ def create_app(app_environment=None):
             reactor.run()
 
         tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
-        for i, tournament in tournaments.iterrows():
-            day, month = tournament.start.split('-')
+        players = pd.read_csv(FULL_DATA_PATH)
+
+        for i, tournament_row in tournaments.iterrows():
+            day, month = tournament_row.start.split('-')
             day, month = int(day), int(month)
-            Tournament(
-                title=tournament["name"],
-                url=tournament["url"],
-                time_control=tournament["type"],
-                status=tournament["status"],
+            tournament = Tournament(
+                title=tournament_row["name"],
+                url=tournament_row["url"],
+                time_control=tournament_row["type"],
+                status=tournament_row["status"],
                 start_date=date(datetime.now().year, month, day),
                 end_date=date(datetime.now().year, month, day)
-            ).insert()
-
-        players = pd.read_csv(FULL_DATA_PATH)
-        for i, player in players.iterrows():
-            Player(
-                tournament_id=player['id'],
-                name=player['name'],
-                title=player['title'],
-                rating=player['rating'],
-                year_of_birth=player['year_of_birth']
-            ).insert()
+            )
+            tournament.insert()
+            for j, player in players[players['id'] == i].iterrows():
+                db.session.add(Player(
+                    tournament_id=tournament.id,
+                    name=player['name'],
+                    title=player['title'],
+                    rating=player['rating'],
+                    year_of_birth=player['year_of_birth']
+                ))
+        db.session.commit()
 
     @app.route('/')
     def index():
         player_data = pd.read_sql_table(table_name='player', con=db.engine)
         agg_data = player_data.groupby('tournament_id')['rating'].agg(['mean', 'count'])
         tournament_metadata = pd.read_sql_table(table_name='tournament', con=db.engine)
-        agg_data = agg_data.merge(tournament_metadata, left_index=True, right_index=True)
+        agg_data = agg_data.merge(tournament_metadata, left_index=True, right_on='id')
         planned_classical = agg_data[(agg_data['time_control'] == 'klasyczne') & (agg_data['status'] == 'planowany')]
         best_with_k_people = planned_classical[planned_classical['count'] >= 10].sort_values('mean', ascending=False)
         return best_with_k_people.iloc[:10]['url'].to_dict()

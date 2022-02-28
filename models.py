@@ -1,8 +1,16 @@
 import os
-from sqlalchemy import Column, String, Integer, create_engine
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Column, String, Integer, create_engine
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.schema import DropTable
 
 db = SQLAlchemy()
+
+
+@compiles(DropTable, "postgresql")
+def _compile_drop_table(element, compiler, **kwargs):
+    return compiler.visit_drop_table(element) + " CASCADE"
 
 
 def get_database_uri(username, password, port, db_name):
