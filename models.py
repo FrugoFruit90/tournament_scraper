@@ -25,6 +25,7 @@ def setup_db(app):
     database_name = 'tournaments'
     default_database_path = get_database_uri('jim_potato', os.environ.get("PASSWORD"), 'localhost:5432', database_name)
     database_path = os.getenv('DATABASE_URL', default_database_path)
+    database_path = database_path.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
@@ -40,7 +41,8 @@ def db_drop_and_create_all():
         drops the database tables and starts fresh
         can be used to initialize a clean database
     """
-    db.drop_all()
+    db.session.query(Player).delete()
+    db.session.commit()
     db.create_all()
 
 

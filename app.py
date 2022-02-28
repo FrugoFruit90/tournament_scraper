@@ -27,7 +27,6 @@ def create_app(app_environment=None):
         app.config.from_object(config[app_environment])
     setup_db(app)
     CORS(app)
-    db_drop_and_create_all()
     db = SQLAlchemy(app)
 
     @app.before_first_request
@@ -53,7 +52,8 @@ def create_app(app_environment=None):
                 start_date=date(datetime.now().year, month, day),
                 end_date=date(datetime.now().year, month, day)
             )
-            tournament.insert()
+            db.session.add(tournament)
+            db.session.flush()
             for j, player in players[players['id'] == i].iterrows():
                 db.session.add(Player(
                     tournament_id=tournament.id,
