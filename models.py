@@ -42,6 +42,7 @@ def db_drop_and_create_all():
         can be used to initialize a clean database
     """
     db.session.query(Player).delete()
+    db.session.query(Tournament).delete()
     db.session.commit()
     db.create_all()
 

@@ -28,6 +28,7 @@ def create_app(app_environment=None):
     setup_db(app)
     CORS(app)
     db = SQLAlchemy(app)
+    db_drop_and_create_all()
 
     @app.before_first_request
     def before_first_request():
