@@ -1,8 +1,9 @@
 from datetime import date, datetime
 import logging
 import os
+import re
 
-from flask import Flask
+from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import pandas as pd
@@ -73,7 +74,12 @@ def create_app(app_environment=None):
         agg_data = agg_data.merge(tournament_metadata, left_index=True, right_on='id')
         planned_classical = agg_data[(agg_data['time_control'] == 'klasyczne') & (agg_data['status'] == 'planowany')]
         best_with_k_people = planned_classical[planned_classical['count'] >= 10].sort_values('mean', ascending=False)
-        return best_with_k_people.iloc[:10]['url'].to_dict()
+        best_with_k_people = best_with_k_people.round({'mean': 1}).drop(['time_control', 'end_date', 'id'], axis=1)
+        best_with_k_people = best_with_k_people.rename({"count": '#players', 'mean': 'mean rating'}, axis=1)
+        df = best_with_k_people.iloc[:10]
+        df["url"] = '<a href=' + df['url'] + '><div>' + df['title'] + '</div></a>'
+        df = df.drop(['title'], axis=1)
+        return render_template_string(df.to_html(render_links=True, escape=False, index=False))
 
     return app
 
