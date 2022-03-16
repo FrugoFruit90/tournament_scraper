@@ -51,7 +51,7 @@ class Tournament(db.Model):
     __tablename__ = 'tournament'
     id = Column(Integer, primary_key=True)
     title = Column(String(200))
-    url = Column(String(80))
+    url = Column(String(80), unique=True)
     time_control = Column(String(80))
     status = Column(String(80))
     start_date = Column(db.Date)
