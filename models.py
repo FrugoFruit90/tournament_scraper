@@ -1,5 +1,6 @@
 import os
 
+import psycopg2
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, create_engine
 from sqlalchemy.ext.compiler import compiles
@@ -41,9 +42,12 @@ def db_drop_and_create_all():
         drops the database tables and starts fresh
         can be used to initialize a clean database
     """
-    db.session.query(Player).delete()
-    db.session.query(Tournament).delete()
-    db.session.commit()
+    try:
+        db.session.query(Player).delete()
+        db.session.query(Tournament).delete()
+        db.session.commit()
+    except psycopg2.ProgrammingError:
+        pass
     db.create_all()
 
 
