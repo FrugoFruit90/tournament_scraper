@@ -1,7 +1,6 @@
 from datetime import date, datetime
 import logging
 import os
-import re
 
 from flask import Flask, render_template_string
 from flask_sqlalchemy import SQLAlchemy
@@ -18,6 +17,7 @@ from models import setup_db, Tournament, Player, db_drop_and_create_all
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)
+pd.set_option('chained_assignment', None)
 
 
 def create_app(app_environment=None):
@@ -31,40 +31,38 @@ def create_app(app_environment=None):
     db = SQLAlchemy(app)
     db_drop_and_create_all()
 
-    @app.before_first_request
-    def before_first_request():
-        if not os.path.exists(FULL_DATA_PATH):
-            logging.info("Crawling for tournaments.")
-            configure_logging()
-            crawl_runner = CrawlerRunner()
-            crawl(crawl_runner)
-            reactor.run()
+    if not os.path.exists(FULL_DATA_PATH):
+        logging.info("Crawling for tournaments.")
+        configure_logging()
+        crawl_runner = CrawlerRunner()
+        crawl(crawl_runner)
+        reactor.run()
 
-        tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
-        players = pd.read_csv(FULL_DATA_PATH)
+    tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
+    players = pd.read_csv(FULL_DATA_PATH)
 
-        for i, tournament_row in tournaments.iterrows():
-            day, month = tournament_row.start.split('-')
-            day, month = int(day), int(month)
-            tournament = Tournament(
-                title=tournament_row["name"],
-                url=tournament_row["url"],
-                time_control=tournament_row["type"],
-                status=tournament_row["status"],
-                start_date=date(datetime.now().year, month, day),
-                end_date=date(datetime.now().year, month, day)
-            )
-            db.session.add(tournament)
-            db.session.flush()
-            for j, player in players[players['id'] == i].iterrows():
-                db.session.add(Player(
-                    tournament_id=tournament.id,
-                    name=player['name'],
-                    title=player['title'],
-                    rating=player['rating'],
-                    year_of_birth=player['year_of_birth']
-                ))
-        db.session.commit()
+    for i, tournament_row in tournaments.iterrows():
+        day, month = tournament_row.start.split('-')
+        day, month = int(day), int(month)
+        tournament = Tournament(
+            title=tournament_row["name"],
+            url=tournament_row["url"],
+            time_control=tournament_row["type"],
+            status=tournament_row["status"],
+            start_date=date(datetime.now().year, month, day),
+            end_date=date(datetime.now().year, month, day)
+        )
+        db.session.add(tournament)
+        db.session.flush()
+        for j, player in players[players['id'] == i].iterrows():
+            db.session.add(Player(
+                tournament_id=tournament.id,
+                name=player['name'],
+                title=player['title'],
+                rating=player['rating'],
+                year_of_birth=player['year_of_birth']
+            ))
+    db.session.commit()
 
     @app.route('/')
     def index():
