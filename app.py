@@ -38,35 +38,35 @@ def create_app(app_environment=None):
         crawl_runner = CrawlerRunner()
         crawl(crawl_runner)
         reactor.run()
+    if not db.session.query(Tournament).first():
+        tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
+        players = pd.read_csv(FULL_DATA_PATH)
 
-    tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
-    players = pd.read_csv(FULL_DATA_PATH)
+        for i, tournament_row in tournaments.iterrows():
+            day, month = tournament_row.start.split('-')
+            day, month = int(day), int(month)
+            db.session.query()
+            tournament = Tournament(
+                title=tournament_row["name"],
+                url=tournament_row["url"],
+                time_control=tournament_row["type"],
+                status=tournament_row["status"],
+                start_date=date(datetime.now().year, month, day),
+                end_date=date(datetime.now().year, month, day)
+            )
+            db.session.add(tournament)
+            db.session.flush()
 
-    for i, tournament_row in tournaments.iterrows():
-        day, month = tournament_row.start.split('-')
-        day, month = int(day), int(month)
-        db.session.query()
-        tournament = Tournament(
-            title=tournament_row["name"],
-            url=tournament_row["url"],
-            time_control=tournament_row["type"],
-            status=tournament_row["status"],
-            start_date=date(datetime.now().year, month, day),
-            end_date=date(datetime.now().year, month, day)
-        )
-        db.session.add(tournament)
-        db.session.flush()
-
-        for j, player in players[players['id'] == i].iterrows():
-            player = (Player(
-                tournament_id=tournament.id,
-                name=player['name'],
-                title=player['title'],
-                rating=player['rating'],
-                year_of_birth=player['year_of_birth']
-            ))
-            db.session.add(player)
-    db.session.commit()
+            for j, player in players[players['id'] == i].iterrows():
+                player = (Player(
+                    tournament_id=tournament.id,
+                    name=player['name'],
+                    title=player['title'],
+                    rating=player['rating'],
+                    year_of_birth=player['year_of_birth']
+                ))
+                db.session.add(player)
+        db.session.commit()
 
     @app.route('/')
     def index():
