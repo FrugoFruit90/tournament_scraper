@@ -55,10 +55,7 @@ def create_app(app_environment=None):
             end_date=date(datetime.now().year, month, day)
         )
         if db.session.query(Tournament).filter_by(url=tournament_row["url"]).first():
-            db.session.execute(update(Tournament).
-                               where(Tournament.url == tournament_row["url"]).
-                               values(status=tournament_row["type"])
-                               )
+            continue
         else:
             db.session.add(tournament)
         db.session.flush()
