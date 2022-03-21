@@ -54,10 +54,7 @@ def create_app(app_environment=None):
             start_date=date(datetime.now().year, month, day),
             end_date=date(datetime.now().year, month, day)
         )
-        if db.session.query(Tournament).filter_by(url=tournament_row["url"]).first():
-            continue
-        else:
-            db.session.add(tournament)
+        db.session.add(tournament)
         db.session.flush()
 
         for j, player in players[players['id'] == i].iterrows():
@@ -68,10 +65,7 @@ def create_app(app_environment=None):
                 rating=player['rating'],
                 year_of_birth=player['year_of_birth']
             ))
-            if db.session.query(Player).filter_by(name=player.name, tournament_id=tournament.id).first():
-                continue
-            else:
-                db.session.add(player)
+            db.session.add(player)
     db.session.commit()
 
     @app.route('/')
