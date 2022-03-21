@@ -8,6 +8,7 @@ from flask_cors import CORS
 import pandas as pd
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
+from sqlalchemy import update
 from twisted.internet import reactor
 
 from config import config
@@ -44,6 +45,7 @@ def create_app(app_environment=None):
     for i, tournament_row in tournaments.iterrows():
         day, month = tournament_row.start.split('-')
         day, month = int(day), int(month)
+        db.session.query()
         tournament = Tournament(
             title=tournament_row["name"],
             url=tournament_row["url"],
@@ -52,16 +54,27 @@ def create_app(app_environment=None):
             start_date=date(datetime.now().year, month, day),
             end_date=date(datetime.now().year, month, day)
         )
-        db.session.add(tournament)
+        if db.session.query(Tournament).filter_by(url=tournament_row["url"]).first():
+            db.session.execute(update(Tournament).
+                               where(Tournament.url == tournament_row["url"]).
+                               values(status=tournament_row["type"])
+                               )
+        else:
+            db.session.add(tournament)
         db.session.flush()
+
         for j, player in players[players['id'] == i].iterrows():
-            db.session.add(Player(
+            player = (Player(
                 tournament_id=tournament.id,
                 name=player['name'],
                 title=player['title'],
                 rating=player['rating'],
                 year_of_birth=player['year_of_birth']
             ))
+            if db.session.query(Player).filter_by(name=player.name, tournament_id=tournament.id).first():
+                continue
+            else:
+                db.session.add(player)
     db.session.commit()
 
     @app.route('/')
