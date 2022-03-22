@@ -38,9 +38,8 @@ def create_app(app_environment=None):
         reactor.run()
     db.app.logger.info(f"rows in tournament: {db.session.query(Tournament).count()}")
     if db.session.query(Tournament).first() is None:
-        tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
+        tournaments = pd.read_csv(TOURNAMENT_DATA_PATH).drop_duplicates(subset=['url'])
         players = pd.read_csv(FULL_DATA_PATH)
-
         for i, tournament_row in tournaments.iterrows():
             day, month = tournament_row.start.split('-')
             day, month = int(day), int(month)
