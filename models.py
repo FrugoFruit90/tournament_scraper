@@ -43,10 +43,12 @@ def db_drop_and_create_all():
         can be used to initialize a clean database
     """
     inspector_gadget = inspect(db.engine)
-    if inspector_gadget.has_table("player"):
+    db.app.logger.info(f"rows before truncating: {db.session.query(Tournament).count()}")
+    if inspector_gadget.has_table("player"):  # truncate the table if it's there
         db.session.query(Player).delete()
         db.session.query(Tournament).delete()
     db.session.commit()
+    db.app.logger.info(f"rows after truncating: {db.session.query(Tournament).count()}")
     db.create_all()
 
 
