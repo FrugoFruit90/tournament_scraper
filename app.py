@@ -14,7 +14,7 @@ from twisted.internet import reactor
 from config import config
 from chess_calendar.chess_calendar.constants import FULL_DATA_PATH, TOURNAMENT_DATA_PATH
 from chess_calendar.chess_calendar.crawler_main import crawl
-from models import setup_db, Tournament, Player, db_drop_and_create_all
+from models import setup_db, Tournament, Player, db
 
 root = logging.getLogger()
 root.setLevel(logging.INFO)
@@ -29,8 +29,6 @@ def create_app(app_environment=None):
         app.config.from_object(config[app_environment])
     setup_db(app)
     CORS(app)
-    db = SQLAlchemy(app)
-    db_drop_and_create_all()
 
     if not os.path.exists(FULL_DATA_PATH):
         logging.info("Crawling for tournaments.")
