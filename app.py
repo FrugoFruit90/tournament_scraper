@@ -36,6 +36,7 @@ def create_app(app_environment=None):
         crawl_runner = CrawlerRunner()
         crawl(crawl_runner)
         reactor.run()
+    db.app.logger.info(f"rows in tournament: {db.session.query(Tournament).count()}")
     if db.session.query(Tournament).first() is None:
         tournaments = pd.read_csv(TOURNAMENT_DATA_PATH)
         players = pd.read_csv(FULL_DATA_PATH)
