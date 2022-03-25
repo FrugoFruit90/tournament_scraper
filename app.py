@@ -17,7 +17,10 @@ from chess_calendar.chess_calendar.crawler_main import crawl
 from models import setup_db, Tournament, Player, db
 
 root = logging.getLogger()
+logging.basicConfig(level=logging.INFO)
 root.setLevel(logging.INFO)
+logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+
 pd.set_option('chained_assignment', None)
 
 
@@ -37,9 +40,8 @@ def create_app(app_environment=None):
         crawl(crawl_runner)
         reactor.run()
     db.app.logger.info(f"rows in tournament: {db.session.query(Tournament).count()}")
-    session = Session(db.engine)
-    with session.begin():
-        if db.session.query(Tournament).first() is None:
+    with Session(db.engine) as session, session.begin():
+        if session.query(Tournament).first() is None:
             tournaments = pd.read_csv(TOURNAMENT_DATA_PATH).drop_duplicates(subset=['url'])
             players = pd.read_csv(FULL_DATA_PATH)
             for i, tournament_row in tournaments.iterrows():
@@ -53,8 +55,8 @@ def create_app(app_environment=None):
                     start_date=date(datetime.now().year, month, day),
                     end_date=date(datetime.now().year, month, day)
                 )
-                db.session.add(tournament)
-                db.session.flush()
+                session.add(tournament)
+                session.flush()
 
                 for j, player in players[players['id'] == i].iterrows():
                     player = (Player(
@@ -64,7 +66,7 @@ def create_app(app_environment=None):
                         rating=player['rating'],
                         year_of_birth=player['year_of_birth']
                     ))
-                    db.session.add(player)
+                    session.add(player)
 
     @app.route('/')
     def index():
