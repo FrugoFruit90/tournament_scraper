@@ -5,6 +5,7 @@ import os
 from flask import Flask, render_template_string
 from flask_cors import CORS
 import pandas as pd
+from sqlalchemy.orm import Session
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 from sqlalchemy import update
@@ -36,33 +37,34 @@ def create_app(app_environment=None):
         crawl(crawl_runner)
         reactor.run()
     db.app.logger.info(f"rows in tournament: {db.session.query(Tournament).count()}")
-    if db.session.query(Tournament).first() is None:
-        tournaments = pd.read_csv(TOURNAMENT_DATA_PATH).drop_duplicates(subset=['url'])
-        players = pd.read_csv(FULL_DATA_PATH)
-        for i, tournament_row in tournaments.iterrows():
-            day, month = tournament_row.start.split('-')
-            day, month = int(day), int(month)
-            tournament = Tournament(
-                title=tournament_row["name"],
-                url=tournament_row["url"],
-                time_control=tournament_row["type"],
-                status=tournament_row["status"],
-                start_date=date(datetime.now().year, month, day),
-                end_date=date(datetime.now().year, month, day)
-            )
-            db.session.add(tournament)
-            db.session.flush()
+    session = Session(db.engine)
+    with session.begin():
+        if db.session.query(Tournament).first() is None:
+            tournaments = pd.read_csv(TOURNAMENT_DATA_PATH).drop_duplicates(subset=['url'])
+            players = pd.read_csv(FULL_DATA_PATH)
+            for i, tournament_row in tournaments.iterrows():
+                day, month = tournament_row.start.split('-')
+                day, month = int(day), int(month)
+                tournament = Tournament(
+                    title=tournament_row["name"],
+                    url=tournament_row["url"],
+                    time_control=tournament_row["type"],
+                    status=tournament_row["status"],
+                    start_date=date(datetime.now().year, month, day),
+                    end_date=date(datetime.now().year, month, day)
+                )
+                db.session.add(tournament)
+                db.session.flush()
 
-            for j, player in players[players['id'] == i].iterrows():
-                player = (Player(
-                    tournament_id=tournament.id,
-                    name=player['name'],
-                    title=player['title'],
-                    rating=player['rating'],
-                    year_of_birth=player['year_of_birth']
-                ))
-                db.session.add(player)
-        db.session.commit()
+                for j, player in players[players['id'] == i].iterrows():
+                    player = (Player(
+                        tournament_id=tournament.id,
+                        name=player['name'],
+                        title=player['title'],
+                        rating=player['rating'],
+                        year_of_birth=player['year_of_birth']
+                    ))
+                    db.session.add(player)
 
     @app.route('/')
     def index():
