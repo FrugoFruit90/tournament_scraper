@@ -43,7 +43,6 @@ def create_app(app_environment=None):
         for i, tournament_row in tournaments.iterrows():
             day, month = tournament_row.start.split('-')
             day, month = int(day), int(month)
-            db.session.query()
             tournament = Tournament(
                 title=tournament_row["name"],
                 url=tournament_row["url"],
