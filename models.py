@@ -1,6 +1,8 @@
 import os
 
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
 from sqlalchemy import Column, String, Integer, inspect
 from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.schema import DropTable
@@ -30,6 +32,8 @@ def setup_db(app):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
+    migrate = Migrate(compare_type=True, db=db)
+    migrate.init_app(app)
     db_drop_and_create_all()
 
 

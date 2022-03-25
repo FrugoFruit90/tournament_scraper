@@ -3,7 +3,6 @@ import logging
 import os
 
 from flask import Flask, render_template_string
-from flask_migrate import Migrate
 from flask_cors import CORS
 import pandas as pd
 from scrapy.crawler import CrawlerRunner
@@ -22,9 +21,7 @@ pd.set_option('chained_assignment', None)
 
 
 def create_app(app_environment=None):
-    migrate = Migrate(compare_type=True)
     app = Flask(__name__)
-    migrate.init_app(app)
     if app_environment is None:
         app.config.from_object(config[os.getenv('FLASK_ENV', 'dev')])
     else:
