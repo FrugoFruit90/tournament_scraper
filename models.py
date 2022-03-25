@@ -19,10 +19,6 @@ def get_database_uri(username, password, port, db_name):
 
 
 def setup_db(app):
-    """
-    setup_db(app):
-        binds a flask application and a SQLAlchemy service
-    """
     database_name = 'tournaments'
     default_database_path = get_database_uri('jim_potato', os.environ.get("PASSWORD"), 'localhost:5432', database_name)
     database_path = os.getenv('DATABASE_URL', default_database_path)
@@ -31,26 +27,21 @@ def setup_db(app):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.app = app
     db.init_app(app)
-    db_drop_and_create_all()
+    db_truncate_or_create_all()
 
 
 def db_initialize_db():
     db.create_all()
 
 
-def db_drop_and_create_all():
-    """
-        drops the database tables and starts fresh
-        can be used to initialize a clean database
-    """
+def db_truncate_or_create_all():
     inspector_gadget = inspect(db.engine)
-    db.app.logger.info(f"rows before truncating: {db.session.query(Tournament).count()}")
     if inspector_gadget.has_table("player"):  # truncate the table if it's there
         db.session.query(Player).delete()
         db.session.query(Tournament).delete()
-    db.session.commit()
-    db.app.logger.info(f"rows after truncating: {db.session.query(Tournament).count()}")
-    db.create_all()
+        db.session.commit()
+    else:
+        db.create_all()
 
 
 class Tournament(db.Model):
