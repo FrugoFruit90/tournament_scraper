@@ -20,7 +20,7 @@ def get_database_uri(username, password, port, db_name):
 
 def setup_db(app):
     database_name = 'tournaments'
-    default_database_path = get_database_uri('jim_potato', os.environ.get("PASSWORD"), 'localhost:5432', database_name)
+    default_database_path = get_database_uri('jim_potato', os.environ.get("PASSWORD"), '0.0.0.0:5432', database_name)
     database_path = os.getenv('DATABASE_URL', default_database_path)
     database_path = database_path.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
