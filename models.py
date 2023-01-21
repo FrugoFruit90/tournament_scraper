@@ -14,12 +14,15 @@ def _compile_drop_table(element, compiler, **kwargs):
     return compiler.visit_drop_table(element) + " CASCADE"
 
 
-def get_database_uri(username, password, port, db_name):
-    return f"postgresql://{username}:{password}@containers-us-west-169.railway.app:{port}/{db_name}"
+def get_database_uri():
+    password = os.environ.get("PASSWORD")
+    host = os.environ.get("HOST")
+    port = os.environ.get("PORT")
+    return f"postgresql://postgres:{password}@{host}:{port}/railway"
 
 
 def setup_db(app):
-    default_database_path = get_database_uri('postgres', os.environ.get("PASSWORD"), '0.0.0.0:5432', 'railway')
+    default_database_path = get_database_uri()
     database_path = os.getenv('DATABASE_URL', default_database_path)
     database_path = database_path.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
