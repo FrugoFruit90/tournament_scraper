@@ -19,8 +19,7 @@ def get_database_uri(username, password, port, db_name):
 
 
 def setup_db(app):
-    database_name = 'railway'
-    default_database_path = get_database_uri('postgres', os.environ.get("PASSWORD"), '0.0.0.0:5432', database_name)
+    default_database_path = get_database_uri('postgres', os.environ.get("PASSWORD"), '0.0.0.0:5432', 'railway')
     database_path = os.getenv('DATABASE_URL', default_database_path)
     database_path = database_path.replace("postgres://", "postgresql://", 1)
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
