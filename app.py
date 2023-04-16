@@ -2,13 +2,13 @@ from datetime import date, datetime
 import logging
 import os
 
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, render_template
 from flask_cors import CORS
 import pandas as pd
+from pretty_html_table import build_table
 from sqlalchemy.orm import Session
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
-from sqlalchemy import update
 from twisted.internet import reactor
 
 from config import config
@@ -25,7 +25,7 @@ pd.set_option('chained_assignment', None)
 
 
 def create_app(app_environment=None):
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='templates')
     if app_environment is None:
         app.config.from_object(config[os.getenv('FLASK_ENV', 'dev')])
     else:
@@ -76,14 +76,21 @@ def create_app(app_environment=None):
         agg_data = player_data.groupby('tournament_id')['rating'].agg(['mean', 'count'])
         tournament_metadata = pd.read_sql_table(table_name='tournament', con=db.engine)
         agg_data = agg_data.merge(tournament_metadata, left_index=True, right_on='id')
+        agg_data = agg_data[agg_data["start_date"] > datetime.now()]
         planned_classical = agg_data[(agg_data['time_control'] == 'klasyczne') & (agg_data['status'] == 'planowany')]
         best_with_k_people = planned_classical[planned_classical['count'] >= 10].sort_values('mean', ascending=False)
         best_with_k_people = best_with_k_people.round({'mean': 1}).drop(['time_control', 'end_date', 'id'], axis=1)
         best_with_k_people = best_with_k_people.rename({"count": '#players', 'mean': 'mean rating'}, axis=1)
         df = best_with_k_people.iloc[:10]
         df["url"] = '<a href=' + df['url'] + '><div>' + df['title'] + '</div></a>'
-        df = df.drop(['title'], axis=1)
-        return render_template_string(df.to_html(render_links=True, escape=False, index=False))
+        df = df.drop(['title', 'status'], axis=1)
+        return render_template('base.html',
+                               table=build_table(
+                                   df,
+                                   escape=False,
+                                   color='green_light',
+                                   padding='10px',)
+                               )
 
     return app
 
