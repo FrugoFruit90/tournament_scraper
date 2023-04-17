@@ -14,6 +14,7 @@ from twisted.internet import reactor
 from config import config
 from chess_calendar.chess_calendar.constants import FULL_DATA_PATH, TOURNAMENT_DATA_PATH
 from chess_calendar.chess_calendar.crawler_main import crawl
+from filter import filter_agg_tournaments
 from models import setup_db, Tournament, Player, db
 
 root = logging.getLogger()
@@ -77,19 +78,22 @@ def create_app(app_environment=None):
         tournament_metadata = pd.read_sql_table(table_name='tournament', con=db.engine)
         agg_data = agg_data.merge(tournament_metadata, left_index=True, right_on='id')
         agg_data = agg_data[agg_data["start_date"] > datetime.now()]
-        planned_classical = agg_data[(agg_data['time_control'] == 'klasyczne') & (agg_data['status'] == 'planowany')]
-        best_with_k_people = planned_classical[planned_classical['count'] >= 10].sort_values('mean', ascending=False)
-        best_with_k_people = best_with_k_people.round({'mean': 1}).drop(['time_control', 'end_date', 'id'], axis=1)
-        best_with_k_people = best_with_k_people.rename({"count": '#players', 'mean': 'mean rating'}, axis=1)
-        df = best_with_k_people.iloc[:10]
-        df["url"] = '<a href=' + df['url'] + '><div>' + df['title'] + '</div></a>'
-        df = df.drop(['title', 'status'], axis=1)
         return render_template('base.html',
-                               table=build_table(
-                                   df,
+                               classical=build_table(
+                                   filter_agg_tournaments(agg_data, 'klasyczne'),
                                    escape=False,
                                    color='green_light',
-                                   padding='10px',)
+                                   padding='10px',),
+                               rapid=build_table(
+                                   filter_agg_tournaments(agg_data, 'szybkie'),
+                                   escape=False,
+                                   color='green_light',
+                                   padding='10px',),
+                               blitz=build_table(
+                                   filter_agg_tournaments(agg_data, 'blitz'),
+                                   escape=False,
+                                   color='green_light',
+                                   padding='10px', )
                                )
 
     return app
